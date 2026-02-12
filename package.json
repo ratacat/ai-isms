@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "bin": {
-    "ai-isms": "bin/cli.ts",
     "aism": "bin/cli.ts"
   },
   "scripts": {
