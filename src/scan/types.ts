@@ -70,6 +70,8 @@ export interface CategoryBreakdown {
 
 export interface ScanResult {
   total_ai_isms: number;
+  total_detected_ai_isms: number;
+  truncated: boolean;
   matches: ScanRuleMatch[];
   category_breakdown: CategoryBreakdown[];
   definitions: Record<string, { label: string; definition: string }>;

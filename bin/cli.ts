@@ -308,13 +308,14 @@ function printHuman(response: RobotResponse, quiet: boolean): void {
     }
 
     const delta = response.command_result?.delta;
+    const truncationSuffix = scan.truncated ? ` shown=${scan.total_ai_isms}/${scan.total_detected_ai_isms}` : "";
     if (quiet) {
       const fp = scan.fingerprint ? ` fp=${scan.fingerprint}` : "";
       if (delta) {
-        process.stdout.write(`count=${scan.total_ai_isms} density=${scan.density} score=${scan.score} pass=${scan.pass} delta=${delta.delta} dir=${delta.direction}${fp}\n`);
+        process.stdout.write(`count=${scan.total_ai_isms} density=${scan.density} score=${scan.score} pass=${scan.pass} delta=${delta.delta} dir=${delta.direction}${truncationSuffix}${fp}\n`);
         return;
       }
-      process.stdout.write(`count=${scan.total_ai_isms} density=${scan.density} score=${scan.score} pass=${scan.pass}${fp}\n`);
+      process.stdout.write(`count=${scan.total_ai_isms} density=${scan.density} score=${scan.score} pass=${scan.pass}${truncationSuffix}${fp}\n`);
       return;
     }
 
@@ -330,6 +331,9 @@ function printHuman(response: RobotResponse, quiet: boolean): void {
       process.stdout.write(`after: ${delta.after_total} (${delta.after_density})\n`);
     }
     process.stdout.write(`density: ${scan.density}\nscore: ${scan.score}\ncount: ${scan.total_ai_isms}\npass: ${scan.pass}\n`);
+    if (scan.truncated) {
+      process.stdout.write(`warning: showing top ${scan.total_ai_isms} of ${scan.total_detected_ai_isms} matches (use --top-matches N)\n`);
+    }
     if (scan.fingerprint) {
       process.stdout.write(`fingerprint: ${scan.fingerprint}\n`);
     }

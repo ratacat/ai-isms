@@ -287,6 +287,7 @@ export function scanText(
     return a.start_char - b.start_char;
   });
 
+  const totalDetected = matches.length;
   const topMatches = matches.slice(0, options.topMatches);
 
   let score = 0;
@@ -316,6 +317,8 @@ export function scanText(
 
   const result: ScanResult = {
     total_ai_isms: topMatches.length,
+    total_detected_ai_isms: totalDetected,
+    truncated: totalDetected > topMatches.length,
     matches: topMatches,
     category_breakdown: categoryBreakdown,
     definitions,
