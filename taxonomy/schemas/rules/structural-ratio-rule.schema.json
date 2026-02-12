@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-isms.local/schemas/rules/structural-ratio-rule.schema.json",
+  "title": "Structural Ratio Rule",
+  "description": "Document-level metric threshold rule.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "label",
+    "definition",
+    "match_type",
+    "metric",
+    "threshold",
+    "weight"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "definition": {
+      "type": "string",
+      "minLength": 1
+    },
+    "match_type": {
+      "type": "string",
+      "const": "structural_ratio"
+    },
+    "metric": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "threshold": {
+      "type": "number"
+    },
+    "weight": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    }
+  }
+}

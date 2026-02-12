@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-isms.local/schemas/taxonomy.schema.json",
+  "title": "Taxonomy",
+  "description": "Top-level schema for deterministic AIism taxonomy configuration.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "version",
+    "name",
+    "description",
+    "detector_constraints",
+    "aliases",
+    "categories",
+    "aggregation",
+    "classification_thresholds",
+    "report_schema"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "name": {
+      "type": "string",
+      "const": "taxonomy"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "detector_constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cold_code_only",
+        "ai_api_calls_allowed",
+        "explainable_rules_required"
+      ],
+      "properties": {
+        "cold_code_only": {
+          "type": "boolean"
+        },
+        "ai_api_calls_allowed": {
+          "type": "boolean"
+        },
+        "explainable_rules_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "aliases": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "categories": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "category.schema.json"
+      }
+    },
+    "aggregation": {
+      "$ref": "aggregation.schema.json"
+    },
+    "classification_thresholds": {
+      "$ref": "thresholds.schema.json"
+    },
+    "report_schema": {
+      "$ref": "report-schema.schema.json"
+    }
+  }
+}

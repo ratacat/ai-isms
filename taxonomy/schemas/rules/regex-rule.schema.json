@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-isms.local/schemas/rules/regex-rule.schema.json",
+  "title": "Regex Rule",
+  "description": "Regular-expression based matching rule.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "label",
+    "definition",
+    "match_type",
+    "patterns",
+    "case_sensitive",
+    "weight"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "definition": {
+      "type": "string",
+      "minLength": 1
+    },
+    "match_type": {
+      "type": "string",
+      "const": "regex"
+    },
+    "patterns": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "case_sensitive": {
+      "type": "boolean"
+    },
+    "weight": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    }
+  }
+}

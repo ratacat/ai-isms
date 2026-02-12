@@ -1,0 +1,25 @@
+{
+  "name": "ai-isms",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "ai-isms": "bin/cli.ts",
+    "aism": "bin/cli.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "cli": "bun run ./bin/cli.ts",
+    "validate:taxonomy": "tsx src/bin/validate-taxonomy.ts",
+    "validate:taxonomy:robot": "bun run ./bin/cli.ts validate"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,0 +1,446 @@
+schema_version: 1.0.0
+version: 1.1.1
+name: taxonomy
+description: Deterministic, explainable taxonomy for AIism detection.
+
+detector_constraints:
+  cold_code_only: true
+  ai_api_calls_allowed: false
+  explainable_rules_required: true
+
+aliases:
+  - AI tells
+  - tell words
+  - giveaways
+  - markers
+  - indicators
+  - hallmarks
+  - ChatGPT speak
+  - GPT prose style
+  - AI writing style
+  - AI-ese
+  - LLMish
+  - ChatGPT cliches
+  - slop words
+  - crutch phrases
+  - AI slop
+
+categories:
+  - id: phrase_tells
+    label: Phrase Tells
+    definition: Overused phrases and lexical choices strongly associated with model output.
+    rules:
+      - id: phrase.delve
+        label: Delve usage
+        definition: Unnaturally frequent use of delve as a transition verb.
+        match_type: phrase
+        patterns:
+          - delve
+          - delving into
+        case_sensitive: false
+        weight: 1.8
+      - id: phrase.tapestry
+        label: Tapestry metaphor
+        definition: Generic abstract metaphor often used as filler.
+        match_type: phrase
+        patterns:
+          - tapestry
+        case_sensitive: false
+        weight: 1.4
+      - id: phrase.worth_noting
+        label: Worth noting boilerplate
+        definition: Formulaic setup phrase in canned explanatory style.
+        match_type: phrase
+        patterns:
+          - it is worth noting that
+          - it's worth noting that
+        case_sensitive: false
+        weight: 1.2
+      - id: phrase.transition_stack
+        label: Transition stackers
+        definition: Frequent formal transitions that create robotic flow.
+        match_type: phrase
+        patterns:
+          - furthermore
+          - moreover
+          - additionally
+          - in conclusion
+        case_sensitive: false
+        weight: 1.0
+      - id: phrase.certainly_preface
+        label: Certainly preface
+        definition: Overused certainty opener that can sound synthetic.
+        match_type: phrase
+        patterns:
+          - certainly,
+          - certainly
+        case_sensitive: false
+        weight: 0.8
+      - id: phrase.its_not_just
+        label: Not just / It's X, not Y
+        definition: Contrast phrase used as a formulaic framing device.
+        match_type: phrase
+        patterns:
+          - it's not just
+          - this isn't just
+          - that isn't just
+          - it is not just
+        case_sensitive: false
+        weight: 1.0
+      - id: phrase.crucial_preference
+        label: Crucial emphasis
+        definition: Unnecessarily emphatic generic marker often used as rhetorical filler.
+        match_type: phrase
+        patterns:
+          - it is crucial
+          - it's crucial
+          - it is critically important
+          - it's critically important
+        case_sensitive: false
+        weight: 0.8
+      - id: phrase.tone_summary
+        label: Frequent summary signposting
+        definition: Lightweight recurring recap framing in short-form responses.
+        match_type: phrase
+        patterns:
+          - in the end
+          - at the end of the day
+          - all things considered
+          - to summarize briefly
+        case_sensitive: false
+        weight: 0.6
+      - id: phrase.important_to_note
+        label: Important to note boilerplate
+        definition: Formulaic emphasis phrase common in generated text.
+        match_type: phrase
+        patterns:
+          - it is important to note that
+          - it's important to note that
+        case_sensitive: false
+        weight: 1.1
+
+  - id: rhetorical_templates
+    label: Rhetorical Templates
+    definition: Repeated sentence templates often seen in generated prose.
+    rules:
+      - id: template.not_x_but_y
+        label: Not X but Y template
+        definition: Contrast framing that is overused in generated writing.
+        match_type: regex
+        patterns:
+          - "\\b(?:it|this|that)\\s+(?:is|was|isn't|is not|wasn't|was not)\\s+[^.?!]{1,100}\\b(?:but|but rather|however|it's|it is|its)\\b[^.?!]{1,80}"
+        case_sensitive: false
+        weight: 2.0
+      - id: template.not_x_its_y
+        label: Not X, it's Y
+        definition: Contrasting clause with repetition structure that can indicate templated output.
+        match_type: regex
+        patterns:
+          - "\\b(?:it|this|that)\\s+(?:is|was|is not|was not|isn't|wasn't)\\s+not\\s+(?:just\\s+)?[^.?!]{1,80}\\s+(?:it's|it is|its)\\s+[^.?!]{1,120}"
+          - "\\b(?:it|this|that)\\s+(?:is|was|is not|was not|isn't|wasn't)\\s+not\\s+[^.?!]{1,80}[—-][^.?!]{1,120}"
+        case_sensitive: false
+        weight: 1.7
+      - id: template.heres_the_thing
+        label: Heres the thing
+        definition: Conversational filler often inserted by chat models.
+        match_type: phrase
+        patterns:
+          - and here's the thing
+          - here's the thing
+        case_sensitive: false
+        weight: 1.4
+      - id: template.honestly_preface
+        label: Honestly preface
+        definition: Repeated stance preface that reads as synthetic emphasis.
+        match_type: phrase
+        patterns:
+          - and honestly
+          - honestly,
+        case_sensitive: false
+        weight: 0.8
+      - id: template.not_only_but_also
+        label: Not only but also template
+        definition: Symmetric contrast frame often repeated in generated prose.
+        match_type: regex
+        patterns:
+          - "\\bnot only\\b[^.?!]{1,120}\\bbut also\\b[^.?!]{1,120}"
+        case_sensitive: false
+        weight: 1.3
+      - id: template.on_one_hand_other
+        label: On one hand on the other hand template
+        definition: Balanced framing template used in canned explanations.
+        match_type: regex
+        patterns:
+          - "\\bon the one hand\\b[^.?!]{1,200}\\bon the other hand\\b"
+        case_sensitive: false
+        weight: 1.2
+
+  - id: formatting_tells
+    label: Formatting Tells
+    definition: Structural formatting that can look machine produced when overused.
+    rules:
+      - id: format.bullet_density
+        label: High bullet density
+        definition: Excessive bullet or list formatting compared to total text length.
+        match_type: structural_ratio
+        metric: bullet_lines_per_100_lines
+        threshold: 18
+        weight: 1.4
+      - id: format.em_dash_density
+        label: High em dash density
+        definition: Heavy em dash usage as a stylistic crutch.
+        match_type: structural_ratio
+        metric: em_dash_per_1000_chars
+        threshold: 2.5
+        weight: 0.9
+      - id: format.bold_italic_noise
+        label: Bold italic noise
+        definition: Frequent emphasis markup without semantic need.
+        match_type: regex
+        patterns:
+          - "\\*\\*[^*]{2,}\\*\\*"
+          - "\\*[^*]{2,}\\*"
+        case_sensitive: false
+        weight: 0.6
+      - id: format.numbered_line_density
+        label: High numbered list density
+        definition: Too many numbered lines can indicate templated output.
+        match_type: structural_ratio
+        metric: numbered_lines_per_100_lines
+        threshold: 14
+        weight: 1.1
+      - id: format.heading_density
+        label: High heading density
+        definition: Excessive heading segmentation can indicate assistant-like formatting.
+        match_type: structural_ratio
+        metric: markdown_heading_lines_per_100_lines
+        threshold: 10
+        weight: 0.8
+
+  - id: tone_tells
+    label: Tone Tells
+    definition: Hedging and generic abstraction that can create AI-like tone.
+    rules:
+      - id: tone.certainty_softener
+        label: Certainty softener stack
+        definition: Repeated hedges that reduce commitment.
+        match_type: phrase
+        patterns:
+          - generally
+          - typically
+          - often
+          - in many cases
+          - may vary
+        case_sensitive: false
+        weight: 0.7
+      - id: tone.over_summary
+        label: Summary heavy closure
+        definition: Frequent explicit recap language in short passages.
+        match_type: phrase
+        patterns:
+          - to summarize
+          - in summary
+          - to wrap up
+        case_sensitive: false
+        weight: 1.0
+      - id: tone.depends_context
+        label: Depends on context hedge
+        definition: Generic context hedge that can appear repeatedly in model output.
+        match_type: phrase
+        patterns:
+          - it depends on context
+          - depends on the context
+          - this can vary depending on
+        case_sensitive: false
+        weight: 0.9
+      - id: tone.generic_abstraction
+        label: Generic abstraction language
+        definition: Broad abstraction without concrete detail.
+        match_type: phrase
+        patterns:
+          - in today's world
+          - across industries
+          - a wide range of scenarios
+          - various factors
+        case_sensitive: false
+        weight: 0.9
+      - id: tone.affirmation_loop
+        label: Reassurance reassurance
+        definition: Repeated emotional reassurance and softening phrases that can feel over-generated.
+        match_type: phrase
+        patterns:
+          - not broken
+          - you are not broken
+          - you are not wrong
+          - that's a very human reaction
+        case_sensitive: false
+        weight: 0.7
+
+  - id: assistant_disclaimer_tells
+    label: Assistant Disclaimer Tells
+    definition: Explicit capability and safety disclaimers common in assistant output.
+    rules:
+      - id: disclaimer.as_ai_model
+        label: As an AI language model disclaimer
+        definition: Self-identification disclaimer strongly associated with AI responses.
+        match_type: phrase
+        patterns:
+          - as an ai language model
+          - as a language model
+        case_sensitive: false
+        weight: 3.0
+      - id: disclaimer.no_realtime_access
+        label: No realtime access disclaimer
+        definition: Limitation statement about internet or realtime access.
+        match_type: phrase
+        patterns:
+          - i cannot browse the internet
+          - i don't have real-time access
+          - i do not have real-time access
+        case_sensitive: false
+        weight: 2.4
+      - id: disclaimer.professional_advice
+        label: Professional advice disclaimer
+        definition: Generic warning footer often emitted by assistants.
+        match_type: phrase
+        patterns:
+          - this is not a substitute for professional advice
+          - consult a qualified professional
+        case_sensitive: false
+        weight: 1.6
+      - id: disclaimer.capability_boundary
+        label: Capability boundary statement
+        definition: Explicit inability phrasing around access or actions.
+        match_type: regex
+        patterns:
+          - "\\bi\\s+(?:can't|cannot|do not|don't)\\s+(?:access|view|open|retrieve)\\b"
+        case_sensitive: false
+        weight: 1.7
+
+  - id: assistant_scaffolding_tells
+    label: Assistant Scaffolding Tells
+    definition: Conversational scaffolding and offer language typical of assistants.
+    rules:
+      - id: scaffold.break_it_down
+        label: Break it down scaffold
+        definition: Instructional setup phrase common in AI explanations.
+        match_type: phrase
+        patterns:
+          - let's break it down
+          - let us break it down
+          - let's walk through this
+        case_sensitive: false
+        weight: 1.3
+      - id: scaffold.key_takeaways
+        label: Key takeaways scaffold
+        definition: Packaged summary heading commonly generated by assistants.
+        match_type: phrase
+        patterns:
+          - key takeaways
+          - takeaway
+        case_sensitive: false
+        weight: 0.9
+      - id: scaffold.offer_follow_up
+        label: Offer follow up help
+        definition: Service-style follow-up offer phrase.
+        match_type: regex
+        patterns:
+          - "\\bif you'd like,?\\s+i can\\b"
+          - "\\blet me know if you want me to\\b"
+        case_sensitive: false
+        weight: 1.5
+      - id: scaffold.heres_a_quick
+        label: Here is a quick scaffold
+        definition: Quick-summary intro phrase often used by assistants.
+        match_type: phrase
+        patterns:
+          - here's a quick breakdown
+          - here is a quick breakdown
+          - here's a quick summary
+          - here is a quick summary
+        case_sensitive: false
+        weight: 1.1
+      - id: scaffold.hope_help
+        label: Polite closure offers
+        definition: Service-style closure language used to soften responses.
+        match_type: phrase
+        patterns:
+          - i hope this helps
+          - i hope that helps
+          - let me know if you need
+          - i'm happy to help
+          - if you have any questions
+        case_sensitive: false
+        weight: 0.9
+
+  - id: slop_phrase_tells
+    label: Slop Phrase Tells
+    definition: Repetitive sensory or melodramatic phrase fragments commonly reported as AI slop style.
+    rules:
+      - id: slop.shivers_down_my_spine
+        label: Shivers down my spine
+        definition: Repeated atmospheric phrase often overused in LLM style completion snippets.
+        match_type: phrase
+        patterns:
+          - shivers down my spine
+          - got me excited
+          - got me goosebumps
+          - gave me goosebumps
+        case_sensitive: false
+        weight: 1.0
+      - id: slop.repetitive_if_then
+        label: Repetitive conditional response
+        definition: Mechanical if-then narration pattern with repetitive promise structure.
+        match_type: regex
+        patterns:
+          - "\\bif\\s+[^.?!]{1,140}\\s+(?:i\\'ll|i will|i'll)\\s+[^.?!]{1,120}"
+        case_sensitive: false
+        weight: 0.8
+      - id: slop.tell_me
+        label: Tell-me echo pattern
+        definition: High-frequency quote/repeat preface in roleplay or scripted outputs.
+        match_type: phrase
+        patterns:
+          - tell me
+          - they said
+          - this is how i should
+        case_sensitive: false
+        weight: 0.6
+
+aggregation:
+  base_score_formula: sum(rule_weight * rule_match_count_capped)
+  rule_match_cap_per_500_words: 3
+  category_diversity_bonus:
+    enabled: true
+    bonus_if_categories_hit_at_least: 3
+    bonus_weight: 1.2
+  minimum_evidence_rules_triggered: 2
+
+classification_thresholds:
+  low:
+    min_score: 0
+    max_score: 3.49
+  moderate:
+    min_score: 3.5
+    max_score: 7.99
+  high:
+    min_score: 8.0
+    max_score: 999
+
+report_schema:
+  total_ai_isms: integer
+  matches:
+    - rule_id
+    - category_id
+    - matched_text
+    - start_char
+    - end_char
+    - weight
+  category_breakdown:
+    - category_id
+    - count
+    - weighted_score
+  definitions:
+    keyed_by: rule_id
+  density: low_or_moderate_or_high
+  confidence: 0_to_1

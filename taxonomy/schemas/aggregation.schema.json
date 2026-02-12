@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-isms.local/schemas/aggregation.schema.json",
+  "title": "Aggregation",
+  "description": "Scoring and evidence aggregation configuration.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "base_score_formula",
+    "rule_match_cap_per_500_words",
+    "category_diversity_bonus",
+    "minimum_evidence_rules_triggered"
+  ],
+  "properties": {
+    "base_score_formula": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rule_match_cap_per_500_words": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "category_diversity_bonus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "bonus_if_categories_hit_at_least",
+        "bonus_weight"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "bonus_if_categories_hit_at_least": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bonus_weight": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "minimum_evidence_rules_triggered": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

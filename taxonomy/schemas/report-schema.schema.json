@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-isms.local/schemas/report-schema.schema.json",
+  "title": "Report Schema Descriptor",
+  "description": "Describes the output shape expected from the detector.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "total_ai_isms",
+    "matches",
+    "category_breakdown",
+    "definitions",
+    "density",
+    "confidence"
+  ],
+  "properties": {
+    "total_ai_isms": {
+      "type": "string",
+      "const": "integer"
+    },
+    "matches": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "category_breakdown": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "definitions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "keyed_by"
+      ],
+      "properties": {
+        "keyed_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "density": {
+      "type": "string",
+      "const": "low_or_moderate_or_high"
+    },
+    "confidence": {
+      "type": "string",
+      "const": "0_to_1"
+    }
+  }
+}

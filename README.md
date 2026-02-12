@@ -1,20 +1,20 @@
-# ai-isms
+# aiisms
 
-A lightweight tool that scans text for likely "AI-isms" and reports what it found.
+A lightweight tool that scans text for likely "AIisms" and reports what it found.
 
 ## Goal
 
 Given a block of text, the tool should:
 1. Detect patterns that feel overtly AI-generated.
-2. Count how many AI-isms appear.
+2. Count how many AIisms appear.
 3. Return a readable report with matched phrases and definitions.
 
 Example summary:
-- "Detected 6 AI-isms"
+- "Detected 6 AIisms"
 
-## What we mean by AI-isms
+## What we mean by AIisms
 
-AI-isms are language patterns that are unusually common in model-generated writing, including:
+AIisms are language patterns that are unusually common in model-generated writing, including:
 - overused transition phrases
 - verbose boilerplate framing
 - hedging or certainty disclaimers used unnaturally
@@ -27,7 +27,7 @@ Start with a hybrid scoring approach:
 1. Phrase lexicon: weighted list of common AI-ish phrases.
 2. Structural patterns: regex checks for repeated templates.
 3. Stylistic signals: counts of hedge words, stacked qualifiers, and repetitive transitions.
-4. Score + threshold: classify text as low/moderate/high AI-ism density.
+4. Score + threshold: classify text as low/moderate/high AIism density.
 
 This keeps v1 fast and explainable. Later versions can add an ML classifier.
 
@@ -45,3 +45,17 @@ This keeps v1 fast and explainable. Later versions can add an ML classifier.
 2. Implement a simple CLI (`stdin` or file input).
 3. Add fixture texts and expected reports.
 4. Tune thresholds against real examples.
+
+## Validate taxonomy
+
+Run:
+
+```bash
+npm run validate:taxonomy
+```
+
+Or validate a custom file:
+
+```bash
+npm run validate:taxonomy -- path/to/taxonomy.yml
+```

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-isms.local/schemas/thresholds.schema.json",
+  "title": "Classification Thresholds",
+  "description": "Low/moderate/high score boundaries.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "low",
+    "moderate",
+    "high"
+  ],
+  "properties": {
+    "low": {
+      "$ref": "#/$defs/scoreBand"
+    },
+    "moderate": {
+      "$ref": "#/$defs/scoreBand"
+    },
+    "high": {
+      "$ref": "#/$defs/scoreBand"
+    }
+  },
+  "$defs": {
+    "scoreBand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_score",
+        "max_score"
+      ],
+      "properties": {
+        "min_score": {
+          "type": "number"
+        },
+        "max_score": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}
