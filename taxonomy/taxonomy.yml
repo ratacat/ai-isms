@@ -128,7 +128,7 @@ categories:
         definition: Contrast framing that is overused in generated writing.
         match_type: regex
         patterns:
-          - "\\b(?:it|this|that)\\s+(?:is|was|isn't|is not|wasn't|was not)\\s+[^.?!]{1,100}\\b(?:but|but rather|however|it's|it is|its)\\b[^.?!]{1,80}"
+          - "\\b(?:it|this|that)\\s+(?:is|was|isn't|is not|wasn't|was not)\\s+[^.?!]{1,100}\\b(?:but|but rather|however|instead)\\b[^.?!]{1,80}"
         case_sensitive: false
         weight: 2.0
       - id: template.not_x_its_y
@@ -138,8 +138,41 @@ categories:
         patterns:
           - "\\b(?:it|this|that)\\s+(?:is|was|is not|was not|isn't|wasn't)\\s+not\\s+(?:just\\s+)?[^.?!]{1,80}\\s+(?:it's|it is|its)\\s+[^.?!]{1,120}"
           - "\\b(?:it|this|that)\\s+(?:is|was|is not|was not|isn't|wasn't)\\s+not\\s+[^.?!]{1,80}[—-][^.?!]{1,120}"
+          - "\\b[^.?!]{1,120}\\b(?:is|are|was|were)\\s+not\\s+[^.?!]{1,100}[.?!]\\s+(?:it|they|this|that)\\s+(?:is|are|was|were)\\s+[^.?!]{1,120}"
         case_sensitive: false
         weight: 1.7
+      - id: template.this_is_most
+        label: This is the most signposting
+        definition: Importance framing in definitive superlative language.
+        match_type: regex
+        patterns:
+          - "\\bthis\\s+is\\s+(?:one\\s+of\\s+the\\s+)?most\\s+[^.?!]{1,80}"
+        case_sensitive: false
+        weight: 1.1
+      - id: template.when_when_didactic
+        label: When/When didactic mirror
+        definition: Mirrored conditional teaching structure used in assistant-style exposition.
+        match_type: regex
+        patterns:
+          - "\\bwhen\\s+[^.?!]{1,140}[.?!]\\s+when\\s+[^.?!]{1,140}"
+        case_sensitive: false
+        weight: 0.9
+      - id: template.transforms_how_you
+        label: Changes how you framing
+        definition: Transformation promise language that presents conceptual shifts as total rewrites.
+        match_type: regex
+        patterns:
+          - "\\b(?:understanding|once\\s+you\\s+internalize)\\s+this\\s+(?:changes|transforms)\\s+how\\s+you\\s+[^.?!]{1,80}"
+          - "\\byour\\s+entire\\s+relationship\\s+with\\s+[^.?!]{1,80}\\s+changes\\b"
+        case_sensitive: false
+        weight: 1.1
+      - id: template.this_is_declaration_density
+        label: This-is declaration density
+        definition: High rate of sentence-leading this is or it is declarations can indicate assistant-like rhetorical labeling.
+        match_type: structural_ratio
+        metric: this_is_sentences_per_100_sentences
+        threshold: 4.5
+        weight: 1.0
       - id: template.heres_the_thing
         label: Heres the thing
         definition: Conversational filler often inserted by chat models.
@@ -191,7 +224,7 @@ categories:
         definition: Heavy em dash usage as a stylistic crutch.
         match_type: structural_ratio
         metric: em_dash_per_1000_chars
-        threshold: 2.5
+        threshold: 1.7
         weight: 0.9
       - id: format.bold_italic_noise
         label: Bold italic noise
@@ -338,6 +371,16 @@ categories:
         patterns:
           - key takeaways
           - takeaway
+          - key insight
+          - key insights
+        case_sensitive: false
+        weight: 0.9
+      - id: scaffold.consider_scenario
+        label: Consider scenario opener
+        definition: Instructional hypothetical opener common in assistant-mode teaching.
+        match_type: regex
+        patterns:
+          - "\\b(?:now\\s+)?consider\\s+(?:a|an|the|two|three|[A-Z][a-z]+)\\b"
         case_sensitive: false
         weight: 0.9
       - id: scaffold.offer_follow_up

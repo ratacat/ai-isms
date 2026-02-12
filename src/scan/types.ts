@@ -15,7 +15,12 @@ export interface TaxonomyRule {
   weight: number;
   patterns?: string[];
   case_sensitive?: boolean;
-  metric?: "bullet_lines_per_100_lines" | "em_dash_per_1000_chars" | "numbered_lines_per_100_lines" | "markdown_heading_lines_per_100_lines";
+  metric?:
+    | "bullet_lines_per_100_lines"
+    | "em_dash_per_1000_chars"
+    | "numbered_lines_per_100_lines"
+    | "markdown_heading_lines_per_100_lines"
+    | "this_is_sentences_per_100_sentences";
   threshold?: number;
 }
 

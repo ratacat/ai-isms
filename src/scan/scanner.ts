@@ -17,8 +17,25 @@ function clampScore(score: number): number {
   return Math.max(0, score);
 }
 
+function countWords(text: string): number {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return 0;
+  }
+
+  return trimmed.split(/\s+/).length;
+}
+
 function lines(text: string): string[] {
   return text.length === 0 ? [""] : text.split("\n");
+}
+
+function sentences(text: string): string[] {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (!normalized) {
+    return [];
+  }
+  return normalized.split(/(?<=[.!?])\s+/);
 }
 
 function markdownHeadings(line: string): boolean {
@@ -51,8 +68,15 @@ function countStructuralIndicators(text: string, metric: TaxonomyRule["metric"])
     return (heading / Math.max(ls.length, 1)) * 100;
   }
 
+  if (metric === "this_is_sentences_per_100_sentences") {
+    const ss = sentences(text);
+    const thisIsCount = ss.filter((sentence) => /^(?:this|it)\s+is\b/i.test(sentence)).length;
+    return (thisIsCount / Math.max(ss.length, 1)) * 100;
+  }
+
   // em_dash_per_1000_chars
-  const emDashCount = (text.match(/—/g) || []).length;
+  // Count both unicode em dash and standalone "--" to handle plain-ascii manuscripts.
+  const emDashCount = (text.match(/—|(?<!-)--(?!-)/g) || []).length;
   return (emDashCount / Math.max(text.length, 1)) * 1000;
 }
 
@@ -162,7 +186,9 @@ function classifyDensity(score: number, thresholds: TaxonomyThresholds): Density
   return "moderate";
 }
 
-function capRuleMatches(ruleMatches: number, cap: number): number {
+function capRuleMatches(ruleMatches: number, capPer500Words: number, wordCount: number): number {
+  const blocks = Math.max(1, Math.ceil(wordCount / 500));
+  const cap = Math.max(1, capPer500Words * blocks);
   return Math.min(ruleMatches, cap);
 }
 
@@ -189,6 +215,7 @@ export function scanText(
   options: ScanOptions
 ): ScanResult {
   const text = normalizeText(toStringSafe(input));
+  const wordCount = Math.max(countWords(text), 1);
   const categories = Array.isArray((taxonomy as { categories?: unknown[] }).categories)
     ? (taxonomy as { categories: TaxonomyCategory[] }).categories
     : [];
@@ -228,7 +255,7 @@ export function scanText(
         continue;
       }
 
-      const capped = capRuleMatches(matched.length, aggregation.rule_match_cap_per_500_words);
+      const capped = capRuleMatches(matched.length, aggregation.rule_match_cap_per_500_words, wordCount);
       const ruleScore = capped * rule.weight;
       categoryScore += ruleScore;
       definitions[rule.id] = {
