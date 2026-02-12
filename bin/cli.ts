@@ -12,7 +12,7 @@ import type {
   Taxonomy
 } from "../src/scan/types.js";
 
-const VERSION = "0.1.0";
+const VERSION = "0.11.0";
 
 const HELP = "aism <cmd>\nscan|batch|validate|version|help\nuse `aism help scan` for scan flags";
 const HELP_SCAN = "scan [--text t|--file p|--path p|stdin] [--threshold low|moderate|high|n] [--top-matches n] [--fingerprint] [--quiet] [--json]\nscan --before p --after p [same flags]";
