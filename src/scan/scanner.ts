@@ -145,7 +145,7 @@ function matchesInText(rule: TaxonomyRule, text: string): ScanRuleMatch[] {
     weight: rule.weight,
     start_char: 0,
     end_char: Math.min(text.length, 1),
-    matched_text: rule.metric,
+    matched_text: String(rule.metric ?? ""),
     confidence: 0.68
   }];
 }
