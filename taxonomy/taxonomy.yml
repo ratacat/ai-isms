@@ -218,7 +218,9 @@ categories:
         patterns:
           - "\\b(?:it|this|that)\\s+(?:is|was|isn't|is not|wasn't|was not)\\s+[^.?!]{1,160}\\b(?:but\\s+rather|but|however|instead)\\b[^.?!]{1,140}"
           - "\\bnot\\s+because\\b[^.?!]{1,180}\\bbut\\s+because\\b[^.?!]{1,180}"
+          - "\\bnot\\s+because\\b[^.?!]{1,180}(?:--|—|-)\\s*because\\b[^.?!]{1,180}"
           - "\\bnot\\s+(?!only\\b)[^.?!]{5,160}\\bbut\\s+(?:rather\\s+)?[^.?!]{5,180}"
+          - "\\b(?:is|are|was|were|do|does|did)\\s+not\\s+[^.?!]{1,160}[.?!]\\s+[^.?!]{0,140}\\bbut\\b[^.?!]{1,180}"
         case_sensitive: false
         weight: 2.0
       - id: template.not_x_its_y
@@ -246,6 +248,9 @@ categories:
         patterns:
           - "\\bwhen\\s+[^.?!]{1,260}[.?!;:]\\s+when\\s+[^.?!]{1,260}"
           - "\\bwhen\\s+[^.?!]{1,260},\\s+when\\s+[^.?!]{1,260}"
+          - "\\bwhen\\s+[^.?!]{1,220}[.?!](?:\\s+[^.?!]{1,160}[.?!]){1,2}\\s+when\\s+[^.?!]{1,220}"
+          - "\\bwhen\\s+[^.?!]{1,220}[.?!]\\s+(?:the\\s+reverse|the\\s+opposite|conversely|in\\s+reverse)\\s+when\\s+[^.?!]{1,220}"
+          - "\\bwhen\\s+[^.?!]{1,180}\\band\\s+when\\s+[^.?!]{1,180}"
         case_sensitive: false
         weight: 0.9
       - id: template.transforms_how_you
@@ -352,8 +357,8 @@ categories:
         definition: Frequent emphasis markup without semantic need.
         match_type: structural_ratio
         metric: emphasis_markup_lines_per_100_lines
-        threshold: 8
-        weight: 0.6
+        threshold: 18
+        weight: 0.3
       - id: format.numbered_line_density
         label: High numbered list density
         definition: Too many numbered lines can indicate templated output.
@@ -366,8 +371,8 @@ categories:
         definition: Excessive heading segmentation can indicate assistant-like formatting.
         match_type: structural_ratio
         metric: markdown_heading_lines_per_100_lines
-        threshold: 10
-        weight: 0.8
+        threshold: 14
+        weight: 0.4
       - id: format.paragraph_uniformity
         label: Paragraph length uniformity
         definition: AI produces paragraphs of suspiciously uniform length. Fires when inverse CV exceeds threshold.
@@ -773,7 +778,6 @@ categories:
           - streamline
           - groundbreaking
           - cutting-edge
-          - elevate
           - fostering
         case_sensitive: false
         weight: 0.5

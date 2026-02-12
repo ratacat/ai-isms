@@ -83,12 +83,52 @@ const FIXTURES: CalibrationFixture[] = [
     }
   },
   {
+    id: "not-because-dash-because",
+    note: "Dash-separated because contrast should still be detected.",
+    text: "The loss came not because of the multiplier -- because of where liquidation sat relative to invalidation.",
+    expect: {
+      includeRules: ["template.not_x_but_y"]
+    }
+  },
+  {
+    id: "not-then-but-next-sentence",
+    note: "Cross-sentence not/but contrast should be detected.",
+    text: "Time is not a signal by itself. But setup quality at the right session can shift edge materially.",
+    expect: {
+      includeRules: ["template.not_x_but_y"]
+    }
+  },
+  {
     id: "when-when-long-span",
     note: "Long-span didactic mirror should be detected after regex expansion.",
     text: [
       "When volume expands into resistance while funding stays one-sided and late longs keep adding at worse prices despite repeated absorption at the highs and weakening follow-through on each push, risk of reversal builds quickly.",
       "When that pressure finally releases, liquidation cascades can accelerate."
     ].join(" "),
+    expect: {
+      includeRules: ["template.when_when_didactic"]
+    }
+  },
+  {
+    id: "when-bridge-sentences",
+    note: "When/when with bridge sentences should be detected.",
+    text: "When perp price trades above spot, longs pay shorts. This discourages excess positioning. When perp price trades below spot, shorts pay longs.",
+    expect: {
+      includeRules: ["template.when_when_didactic"]
+    }
+  },
+  {
+    id: "when-and-when-single-sentence",
+    note: "Single-sentence when ... and when ... form should be detected.",
+    text: "Risk discipline matters most when you are winning and when you are losing.",
+    expect: {
+      includeRules: ["template.when_when_didactic"]
+    }
+  },
+  {
+    id: "when-reverse-bridge",
+    note: "When ... The reverse when ... form should be detected.",
+    text: "When longs outnumber shorts, longs pay shorts. The reverse when shorts dominate.",
     expect: {
       includeRules: ["template.when_when_didactic"]
     }
@@ -209,6 +249,64 @@ function runDedupeSanityCheck(): FixtureFailure[] {
   return failures;
 }
 
+function runOverlapCollapseSanityCheck(): FixtureFailure[] {
+  const taxonomy: Taxonomy = {
+    categories: [
+      {
+        id: "overlap_test",
+        label: "Overlap Test",
+        definition: "Synthetic category for overlap-collapse regression.",
+        rules: [
+          {
+            id: "test.overlap_regex",
+            label: "Overlap regex",
+            definition: "Intentionally overlapping patterns to ensure collapse.",
+            match_type: "regex",
+            patterns: [
+              "\\bnot\\s+because\\b[^.?!]{1,120}\\bbut\\s+because\\b[^.?!]{1,120}",
+              "\\bnot\\s+(?!only\\b)[^.?!]{5,140}\\bbut\\s+[^.?!]{5,140}"
+            ],
+            case_sensitive: false,
+            weight: 1
+          }
+        ]
+      }
+    ]
+  };
+
+  const result = scanText(
+    "The setup failed not because buyers were absent but because trapped longs kept selling.",
+    taxonomy,
+    SCAN_OPTIONS
+  );
+
+  const failures: FixtureFailure[] = [];
+  if (result.total_detected_ai_isms !== 1) {
+    failures.push({
+      fixtureId: "overlap-collapse-sanity-check",
+      message: `expected exactly 1 detected AIism after overlap collapse, found ${result.total_detected_ai_isms}`
+    });
+  }
+
+  if (result.matches.length !== 1) {
+    failures.push({
+      fixtureId: "overlap-collapse-sanity-check",
+      message: `expected exactly 1 emitted match after overlap collapse, found ${result.matches.length}`
+    });
+  }
+
+  if (failures.length === 0) {
+    console.log("PASS overlap-collapse-sanity-check detected=1 emitted=1");
+  } else {
+    console.log("FAIL overlap-collapse-sanity-check");
+    for (const failure of failures) {
+      console.log(`  - ${failure.message}`);
+    }
+  }
+
+  return failures;
+}
+
 function main(): void {
   const taxonomyPath = defaultTaxonomyPath();
   const taxonomy = loadTaxonomy(taxonomyPath) as Taxonomy;
@@ -226,12 +324,16 @@ function main(): void {
   console.log("Note: Duplicate rule/span hits should be collapsed before scoring and output.");
   failures.push(...runDedupeSanityCheck());
 
+  console.log("\nFixture: overlap-collapse-sanity-check");
+  console.log("Note: Overlapping same-rule spans should collapse to one strongest match.");
+  failures.push(...runOverlapCollapseSanityCheck());
+
   if (failures.length > 0) {
     console.error(`\n${failures.length} calibration assertion(s) failed.`);
     process.exit(1);
   }
 
-  console.log(`\nAll ${FIXTURES.length + 1} handbook calibration fixture checks passed.`);
+  console.log(`\nAll ${FIXTURES.length + 2} handbook calibration fixture checks passed.`);
 }
 
 main();

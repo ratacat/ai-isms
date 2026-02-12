@@ -167,6 +167,53 @@ function dedupeMatchesByRuleSpan(matches: ScanRuleMatch[]): ScanRuleMatch[] {
   return deduped;
 }
 
+function collapseOverlappingRuleMatches(matches: ScanRuleMatch[]): ScanRuleMatch[] {
+  if (matches.length <= 1) {
+    return matches;
+  }
+
+  const sorted = [...matches].sort((a, b) => {
+    if (a.start_char !== b.start_char) {
+      return a.start_char - b.start_char;
+    }
+
+    if (a.end_char !== b.end_char) {
+      return b.end_char - a.end_char;
+    }
+
+    return b.confidence - a.confidence;
+  });
+
+  const collapsed: ScanRuleMatch[] = [];
+  let clusterEnd = sorted[0]!.end_char;
+  let best = sorted[0]!;
+
+  for (let i = 1; i < sorted.length; i += 1) {
+    const candidate = sorted[i]!;
+
+    if (candidate.start_char < clusterEnd) {
+      clusterEnd = Math.max(clusterEnd, candidate.end_char);
+
+      const bestLength = best.end_char - best.start_char;
+      const candidateLength = candidate.end_char - candidate.start_char;
+      if (
+        candidateLength > bestLength ||
+        (candidateLength === bestLength && candidate.confidence > best.confidence)
+      ) {
+        best = candidate;
+      }
+      continue;
+    }
+
+    collapsed.push(best);
+    best = candidate;
+    clusterEnd = candidate.end_char;
+  }
+
+  collapsed.push(best);
+  return collapsed;
+}
+
 function filterLocalStackedEvidence(
   matches: ScanRuleMatch[],
   windowChars: number,
@@ -279,15 +326,16 @@ function matchesInText(rule: TaxonomyRule, text: string): ScanRuleMatch[] {
     }
 
     const deduped = dedupeMatchesByRuleSpan(results);
+    const overlapCollapsed = collapseOverlappingRuleMatches(deduped);
     if (rule.id === CERTAINTY_SOFTENER_RULE_ID) {
       return filterLocalStackedEvidence(
-        deduped,
+        overlapCollapsed,
         CERTAINTY_SOFTENER_WINDOW_CHARS,
         CERTAINTY_SOFTENER_MIN_MATCHES
       );
     }
 
-    return deduped;
+    return overlapCollapsed;
   }
 
   const value = countStructuralIndicators(text, rule.metric);
