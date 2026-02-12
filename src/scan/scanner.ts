@@ -432,15 +432,15 @@ export function scanText(
         continue;
       }
 
-      const capped = capRuleMatches(matched.length, aggregation.rule_match_cap_per_500_words, wordCount);
-      const ruleScore = capped * rule.weight * scoringMultiplierForRule(rule);
+      const matchCount = matched.length;
+      const ruleScore = matchCount * rule.weight * scoringMultiplierForRule(rule);
       categoryScore += ruleScore;
       definitions[rule.id] = {
         label: rule.label,
         definition: rule.definition
       };
 
-      for (const match of matched.slice(0, capped)) {
+      for (const match of matched) {
         match.category_id = category.id;
         matches.push(match);
       }
