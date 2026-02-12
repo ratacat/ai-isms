@@ -68,6 +68,11 @@ function countStructuralIndicators(text: string, metric: TaxonomyRule["metric"])
     return (heading / Math.max(ls.length, 1)) * 100;
   }
 
+  if (metric === "emphasis_markup_lines_per_100_lines") {
+    const emphasis = ls.filter((line) => /\*\*[^*]+\*\*|\*[^*]+\*/.test(line)).length;
+    return (emphasis / Math.max(ls.length, 1)) * 100;
+  }
+
   if (metric === "this_is_sentences_per_100_sentences") {
     const ss = sentences(text);
     const thisIsCount = ss.filter((sentence) => /^(?:this|it)\s+is\b/i.test(sentence)).length;

@@ -229,11 +229,9 @@ categories:
       - id: format.bold_italic_noise
         label: Bold italic noise
         definition: Frequent emphasis markup without semantic need.
-        match_type: regex
-        patterns:
-          - "\\*\\*[^*]{2,}\\*\\*"
-          - "\\*[^*]{2,}\\*"
-        case_sensitive: false
+        match_type: structural_ratio
+        metric: emphasis_markup_lines_per_100_lines
+        threshold: 8
         weight: 0.6
       - id: format.numbered_line_density
         label: High numbered list density

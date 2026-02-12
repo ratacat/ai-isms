@@ -20,7 +20,8 @@ export interface TaxonomyRule {
     | "em_dash_per_1000_chars"
     | "numbered_lines_per_100_lines"
     | "markdown_heading_lines_per_100_lines"
-    | "this_is_sentences_per_100_sentences";
+    | "this_is_sentences_per_100_sentences"
+    | "emphasis_markup_lines_per_100_lines";
   threshold?: number;
 }
 
