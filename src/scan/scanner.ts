@@ -369,12 +369,6 @@ function classifyDensity(score: number, thresholds: TaxonomyThresholds): Density
   return "moderate";
 }
 
-function capRuleMatches(ruleMatches: number, capPer500Words: number, wordCount: number): number {
-  const blocks = Math.max(1, Math.ceil(wordCount / 500));
-  const cap = Math.max(1, capPer500Words * blocks);
-  return Math.min(ruleMatches, cap);
-}
-
 function makeFingerprint(text: string, matches: ScanRuleMatch[], score: number, density: DensityBand): string {
   const ruleIds = matches
     .map((match) => match.rule_id)
@@ -398,7 +392,7 @@ export function scanText(
     : [];
 
   const aggregation = (taxonomy as { aggregation?: TaxonomyAggregation }).aggregation ?? {
-    base_score_formula: "sum(rule_weight * rule_match_count_capped)",
+    base_score_formula: "sum(rule_weight * rule_match_count)",
     rule_match_cap_per_500_words: 3,
     category_diversity_bonus: {
       enabled: true,

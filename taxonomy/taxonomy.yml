@@ -927,7 +927,7 @@ categories:
         weight: 0.5
 
 aggregation:
-  base_score_formula: sum(rule_weight * rule_match_count_capped)
+  base_score_formula: sum(rule_weight * rule_match_count)
   rule_match_cap_per_500_words: 3
   category_diversity_bonus:
     enabled: true
