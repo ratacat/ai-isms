@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "cli": "bun run ./bin/cli.ts",
     "validate:taxonomy": "tsx src/bin/validate-taxonomy.ts",
-    "validate:taxonomy:robot": "bun run ./bin/cli.ts validate"
+    "validate:taxonomy:robot": "bun run ./bin/cli.ts validate",
+    "fixtures:handbook": "tsx src/bin/run-handbook-fixtures.ts"
   },
   "dependencies": {
     "yaml": "^2.8.1"

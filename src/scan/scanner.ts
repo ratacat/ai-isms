@@ -17,6 +17,9 @@ function clampScore(score: number): number {
   return Math.max(0, score);
 }
 
+const CERTAINTY_SOFTENER_RULE_ID = "tone.certainty_softener";
+const CERTAINTY_SOFTENER_WINDOW_CHARS = 220;
+const CERTAINTY_SOFTENER_MIN_MATCHES = 2;
 const STRUCTURAL_RATIO_WEIGHT_MULTIPLIER = 0.75;
 const UNIFORMITY_WEIGHT_MULTIPLIER = 0.6;
 
@@ -148,6 +151,61 @@ function countStructuralIndicators(text: string, metric: TaxonomyRule["metric"])
   return (emDashCount / Math.max(text.length, 1)) * 1000;
 }
 
+function dedupeMatchesByRuleSpan(matches: ScanRuleMatch[]): ScanRuleMatch[] {
+  const seen = new Set<string>();
+  const deduped: ScanRuleMatch[] = [];
+
+  for (const match of matches) {
+    const key = `${match.rule_id}:${match.start_char}:${match.end_char}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    deduped.push(match);
+  }
+
+  return deduped;
+}
+
+function filterLocalStackedEvidence(
+  matches: ScanRuleMatch[],
+  windowChars: number,
+  minMatches: number
+): ScanRuleMatch[] {
+  if (matches.length < minMatches) {
+    return [];
+  }
+
+  const sorted = [...matches].sort((a, b) => {
+    if (a.start_char !== b.start_char) {
+      return a.start_char - b.start_char;
+    }
+    return a.end_char - b.end_char;
+  });
+
+  const kept = new Set<number>();
+  let left = 0;
+  for (let right = 0; right < sorted.length; right += 1) {
+    while (
+      left < right &&
+      sorted[right]!.start_char - sorted[left]!.start_char > windowChars
+    ) {
+      left += 1;
+    }
+
+    const windowSize = right - left + 1;
+    if (windowSize < minMatches) {
+      continue;
+    }
+
+    for (let i = left; i <= right; i += 1) {
+      kept.add(i);
+    }
+  }
+
+  return sorted.filter((_, index) => kept.has(index));
+}
+
 function matchesInText(rule: TaxonomyRule, text: string): ScanRuleMatch[] {
   if (rule.match_type === "phrase" || rule.match_type === "regex") {
     const patterns = Array.isArray(rule.patterns) ? rule.patterns : [];
@@ -220,7 +278,16 @@ function matchesInText(rule: TaxonomyRule, text: string): ScanRuleMatch[] {
       }
     }
 
-    return results;
+    const deduped = dedupeMatchesByRuleSpan(results);
+    if (rule.id === CERTAINTY_SOFTENER_RULE_ID) {
+      return filterLocalStackedEvidence(
+        deduped,
+        CERTAINTY_SOFTENER_WINDOW_CHARS,
+        CERTAINTY_SOFTENER_MIN_MATCHES
+      );
+    }
+
+    return deduped;
   }
 
   const value = countStructuralIndicators(text, rule.metric);
