@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-version: 1.1.1
+version: 1.3.0
 name: taxonomy
 description: Deterministic, explainable taxonomy for AIism detection.
 
@@ -118,6 +118,95 @@ categories:
           - it's important to note that
         case_sensitive: false
         weight: 1.1
+      - id: phrase.prestige_vocabulary
+        label: Prestige word stack
+        definition: Individually normal words that appear at abnormally high frequency in AI output.
+        match_type: phrase
+        patterns:
+          - multifaceted
+          - intricate
+          - nuanced
+          - pivotal
+          - meticulous
+          - comprehensive
+          - profound
+          - paramount
+          - palpable
+          - enigmatic
+          - myriad
+          - commendable
+          - unwavering
+        case_sensitive: false
+        weight: 0.8
+      - id: phrase.vibrant_vocabulary
+        label: Sensory prestige words
+        definition: Aesthetic and sensory words used at extreme overuse rates in AI text.
+        match_type: phrase
+        patterns:
+          - vibrant
+          - ethereal
+          - luminous
+          - radiant
+          - pristine
+          - breathtaking
+          - kaleidoscope
+          - symphony
+          - mosaic
+          - beacon
+        case_sensitive: false
+        weight: 1.0
+      - id: phrase.action_verb_inflation
+        label: Inflated action verbs
+        definition: Dramatic verbs consistently chosen by AI where simpler alternatives exist.
+        match_type: phrase
+        patterns:
+          - leverage
+          - harness
+          - unleash
+          - unlock
+          - empower
+          - showcase
+          - illuminate
+          - underscore
+          - resonate
+          - embark
+        case_sensitive: false
+        weight: 0.7
+      - id: phrase.nestled_scenic
+        label: Nestled scenic cliche
+        definition: Scenic setting cliche disproportionately common in AI location and travel writing.
+        match_type: phrase
+        patterns:
+          - nestled in the heart of
+          - nestled in
+          - nestled among
+          - nestled between
+        case_sensitive: false
+        weight: 1.2
+      - id: phrase.dive_in
+        label: Dive in and deep dive
+        definition: Exploration invitation phrases distinct from delve but equally overused.
+        match_type: phrase
+        patterns:
+          - let's dive in
+          - let's dive deeper
+          - let us dive in
+          - deep dive
+          - dive into
+        case_sensitive: false
+        weight: 1.0
+      - id: phrase.seamless_robust
+        label: Effortless perfection words
+        definition: Words that paint everything as frictionless and reliable in a distinctly AI way.
+        match_type: phrase
+        patterns:
+          - seamless
+          - seamlessly
+          - robust
+          - effortless
+          - effortlessly
+        case_sensitive: false
+        weight: 0.8
 
   - id: rhetorical_templates
     label: Rhetorical Templates
@@ -207,6 +296,36 @@ categories:
           - "\\bon the one hand\\b[^.?!]{1,200}\\bon the other hand\\b"
         case_sensitive: false
         weight: 1.2
+      - id: template.no_x_no_y_just_z
+        label: No X No Y Just Z template
+        definition: Staccato negation-then-reveal template common in AI copy.
+        match_type: regex
+        patterns:
+          - "\\bno\\s+\\w+[^.?!]{0,30}\\.\\s+no\\s+\\w+[^.?!]{0,30}\\.\\s+just\\s+[^.?!]{1,60}"
+        case_sensitive: false
+        weight: 1.3
+      - id: template.that_being_said
+        label: That being said transition
+        definition: Formulaic concession transition overused in AI prose.
+        match_type: phrase
+        patterns:
+          - that being said
+          - "that said,"
+          - having said that
+          - with that being said
+        case_sensitive: false
+        weight: 0.8
+      - id: template.at_its_core
+        label: At its core framing
+        definition: Reductive framing phrase used by LLMs to sound insightful.
+        match_type: phrase
+        patterns:
+          - at its core
+          - at its heart
+          - at the heart of
+          - "fundamentally,"
+        case_sensitive: false
+        weight: 0.7
 
   - id: formatting_tells
     label: Formatting Tells
@@ -247,6 +366,20 @@ categories:
         metric: markdown_heading_lines_per_100_lines
         threshold: 10
         weight: 0.8
+      - id: format.paragraph_uniformity
+        label: Paragraph length uniformity
+        definition: AI produces paragraphs of suspiciously uniform length. Fires when inverse CV exceeds threshold.
+        match_type: structural_ratio
+        metric: paragraph_length_inv_cv
+        threshold: 4.0
+        weight: 1.2
+      - id: format.sentence_uniformity
+        label: Sentence length uniformity
+        definition: Low burstiness in sentence length indicates AI-like regularity. Fires when inverse CV exceeds threshold.
+        match_type: structural_ratio
+        metric: sentence_length_inv_cv
+        threshold: 3.3
+        weight: 1.0
 
   - id: tone_tells
     label: Tone Tells
@@ -304,6 +437,18 @@ categories:
           - you are not broken
           - you are not wrong
           - that's a very human reaction
+        case_sensitive: false
+        weight: 0.7
+      - id: tone.overly_positive_closure
+        label: Overly positive conclusion
+        definition: Upbeat closing regardless of how negative or serious the preceding content is.
+        match_type: phrase
+        patterns:
+          - on a positive note
+          - there is hope
+          - the good news is
+          - looking on the bright side
+          - silver lining
         case_sensitive: false
         weight: 0.7
 
@@ -413,6 +558,27 @@ categories:
           - if you have any questions
         case_sensitive: false
         weight: 0.9
+      - id: scaffold.email_opener
+        label: Professional email opener
+        definition: Formulaic email greeting strongly associated with AI-drafted correspondence.
+        match_type: phrase
+        patterns:
+          - i hope this email finds you well
+          - i hope this finds you well
+          - i hope this message finds you well
+        case_sensitive: false
+        weight: 1.2
+      - id: scaffold.refinement_offer
+        label: Refinement and tweak offer
+        definition: Output-iteration offer language specific to AI assistant workflows.
+        match_type: phrase
+        patterns:
+          - let me know if you want any further refinements
+          - let me know if you'd like any more tweaks
+          - would you like me to adjust
+          - shall i refine
+        case_sensitive: false
+        weight: 1.3
 
   - id: slop_phrase_tells
     label: Slop Phrase Tells
@@ -447,6 +613,312 @@ categories:
           - this is how i should
         case_sensitive: false
         weight: 0.6
+
+  - id: engagement_glaze_tells
+    label: Engagement Glaze Tells
+    definition: Over-validating or engagement-seeking phrasing frequently reported in assistant-like output.
+    rules:
+      - id: glaze.great_question
+        label: Great-question validation
+        definition: Generic praise openers that can sound model-like when repeated.
+        match_type: phrase
+        patterns:
+          - great question
+          - great catch
+        case_sensitive: false
+        weight: 0.9
+      - id: glaze.callout_validation
+        label: Callout validation scripts
+        definition: Apology-and-validation boilerplate often used in assistant recovery turns.
+        match_type: phrase
+        patterns:
+          - you're right to call me out on it
+          - you are right to call me out on it
+          - you caught that, huh?
+          - that makes perfect sense
+          - now you're really thinking like
+        case_sensitive: false
+        weight: 1.0
+      - id: glaze.engagement_prompt
+        label: Engagement bait closers
+        definition: Prompting for interaction with canned social engagement phrasing.
+        match_type: phrase
+        patterns:
+          - i'm curious what others think
+          - what do you think?
+          - does this resonate?
+        case_sensitive: false
+        weight: 0.7
+      - id: glaze.absolute_agreement
+        label: Absolute agreement opener
+        definition: Overenthusiastic agreement words used as sentence openers.
+        match_type: phrase
+        patterns:
+          - "absolutely!"
+          - "absolutely,"
+          - "exactly!"
+          - "precisely!"
+        case_sensitive: false
+        weight: 0.8
+
+  - id: question_hook_tells
+    label: Question Hook Tells
+    definition: Short rhetorical hook questions and reveal-style pivots common in templated AI copy.
+    rules:
+      - id: hooks.kicker_issue
+        label: Kicker issue hooks
+        definition: Formulaic lead-ins that pivot with dramatic question fragments.
+        match_type: phrase
+        patterns:
+          - the kicker?
+          - the issue?
+          - the real issue?
+          - here's the twist
+          - but here's the twist
+          - the best part?
+          - the worst part?
+        case_sensitive: false
+        weight: 1.0
+      - id: hooks.cringy_question_style
+        label: Cringy reveal question style
+        definition: Over-scripted reveal questions often cited in AI slop discussions.
+        match_type: regex
+        patterns:
+          - "\\b(?:and\\s+)?do\\s+you\\s+know\\s+what\\s+i\\s+learned\\s+from\\s+all\\s+this\\?"
+        case_sensitive: false
+        weight: 1.1
+      - id: hooks.result_question
+        label: Result and outcome question fragment
+        definition: Reveal-question fragments that tee up a conclusion or verdict.
+        match_type: phrase
+        patterns:
+          - the result?
+          - the outcome?
+          - the takeaway?
+          - the verdict?
+          - the bottom line?
+        case_sensitive: false
+        weight: 0.9
+
+  - id: balanced_safety_templates
+    label: Balanced Safety Templates
+    definition: Over-hedged balancing templates that prioritize safe symmetry over specificity.
+    rules:
+      - id: balance.while_true_consider
+        label: While true must also consider
+        definition: Symmetric balancing frame that hedges by pairing every claim with a safety qualifier.
+        match_type: regex
+        patterns:
+          - "\\bwhile\\s+it'?s\\s+true\\s+that\\s+[^.?!]{1,140},\\s+(?:it|we|you)\\s+(?:must|should)\\s+also\\s+(?:consider|acknowledge|remember)\\s+[^.?!]{1,120}"
+          - "\\bwhile\\s+it\\s+is\\s+true\\s+that\\s+[^.?!]{1,140},\\s+(?:it|we|you)\\s+(?:must|should)\\s+also\\s+(?:consider|acknowledge|remember)\\s+[^.?!]{1,120}"
+        case_sensitive: false
+        weight: 1.1
+      - id: balance.hedged_preface
+        label: Hedged balance preface
+        definition: Repeated prefacing that softens claims into cautious, generic framing.
+        match_type: phrase
+        patterns:
+          - while it's true that
+          - while it is true that
+          - more often than not
+        case_sensitive: false
+        weight: 0.6
+
+  - id: marketing_buzzword_tells
+    label: Marketing Buzzword Tells
+    definition: SEO and growth-marketing stock language frequently amplified by text generators.
+    rules:
+      - id: seo.next_level
+        label: Next level up-sell framing
+        definition: Generic optimization slogan pattern frequently used in AI-assisted copy.
+        match_type: regex
+        patterns:
+          - "\\btake\\s+your\\s+[^.?!]{1,80}\\s+to\\s+the\\s+next\\s+level\\b"
+        case_sensitive: false
+        weight: 1.0
+      - id: seo.navigate_landscape
+        label: Navigate the landscape framing
+        definition: Abstract strategy framing phrased in stereotyped consultancy language.
+        match_type: phrase
+        patterns:
+          - navigating the landscape of
+          - navigating the complexities of
+          - based on the information provided
+          - in the realm of
+          - in stark contrast to
+        case_sensitive: false
+        weight: 0.9
+      - id: seo.testament_clear
+        label: Testament and certainty framing
+        definition: Definitive certainty and authority cues commonly overused in generated marketing prose.
+        match_type: phrase
+        patterns:
+          - a testament to
+          - one thing is clear
+          - one thing is certain
+          - and with that
+          - with that
+          - in that moment
+          - so here's to
+        case_sensitive: false
+        weight: 0.9
+      - id: seo.buzzword_stack
+        label: Marketing buzzword stack
+        definition: Repeated growth and innovation buzzwords typical of polished AI marketing tone.
+        match_type: phrase
+        patterns:
+          - revolutionize
+          - streamline
+          - groundbreaking
+          - cutting-edge
+          - elevate
+          - fostering
+        case_sensitive: false
+        weight: 0.5
+      - id: seo.game_changer
+        label: Game changer and supercharge framing
+        definition: Hype buzzwords common in AI-assisted marketing and copywriting.
+        match_type: phrase
+        patterns:
+          - game changer
+          - game-changer
+          - supercharge
+          - secret sauce
+          - unprecedented
+          - paradigm shift
+          - synergy
+        case_sensitive: false
+        weight: 0.6
+
+  - id: blog_cliche_tells
+    label: Blog Cliche Tells
+    definition: Boilerplate blog setup and CTA phrases commonly reused by AI drafting tools.
+    rules:
+      - id: blog.cta_hooks
+        label: CTA cliche hooks
+        definition: Formulaic intro and call-to-action templates common in low-effort AI blog copy.
+        match_type: phrase
+        patterns:
+          - without further ado
+          - if you're anything like me
+          - if you are anything like me
+          - now, this might make you wonder
+        case_sensitive: false
+        weight: 0.8
+      - id: blog.ever_wondered_why
+        label: Have-you-ever-wondered hook
+        definition: Generic curiosity hook often used as a template opener.
+        match_type: regex
+        patterns:
+          - "\\bhave\\s+you\\s+ever\\s+wondered\\s+why\\b"
+        case_sensitive: false
+        weight: 0.8
+      - id: blog.power_and_everyone
+        label: Everyone wants and power framing
+        definition: Broad motivational claims that read like generated persuasion boilerplate.
+        match_type: regex
+        patterns:
+          - "\\beveryone\\s+wants\\s+to\\s+[^.?!]{1,90}"
+          - "\\byou\\s+have\\s+the\\s+power\\s+to\\s+[^.?!]{1,90}"
+        case_sensitive: false
+        weight: 0.7
+      - id: blog.ever_evolving_world
+        label: Ever-evolving world setup
+        definition: Generic trend-context setup phrase often used in synthetic intros.
+        match_type: regex
+        patterns:
+          - "\\bin\\s+today'?s\\s+ever-?evolving\\s+[^.?!]{1,80}\\s+environment\\b"
+        case_sensitive: false
+        weight: 0.7
+
+  - id: fiction_melodrama_tells
+    label: Fiction Melodrama Tells
+    definition: Repetitive dramatic and sensory cliches frequently reported in AI-written fiction outputs.
+    rules:
+      - id: fiction.dialogue_tropes
+        label: Recycled dialogue tropes
+        definition: Character lines and tropes that recur unnaturally across generated scenes.
+        match_type: phrase
+        patterns:
+          - and yet, here you are
+          - you'll never have to find out
+          - you're going to be the death of me
+          - with practiced ease
+        case_sensitive: false
+        weight: 1.0
+      - id: fiction.sensory_cliches
+        label: Sensory cliche stack
+        definition: Overused sensory fragments and scene-setting motifs in generated fiction.
+        match_type: phrase
+        patterns:
+          - running on coffee and regret
+          - running on coffee and questionable decisions
+          - barely above a whisper
+          - breath hitched
+          - pulse quickened
+          - casting long shadows
+          - metallic tang
+          - jasmine and sandalwood
+        case_sensitive: false
+        weight: 0.9
+      - id: fiction.existential_dread_smell
+        label: Existential dread smell simile
+        definition: Hyper-specific smell cliche pattern that appears as repeated AI trope language.
+        match_type: regex
+        patterns:
+          - "\\bsmell(?:ed|s)?\\s+like\\s+[^.?!]{1,60}\\s+and\\s+existential\\s+dread\\b"
+        case_sensitive: false
+        weight: 1.0
+      - id: fiction.body_reaction_cliches
+        label: Body reaction cliches
+        definition: Involuntary body reactions from a narrow AI repertoire.
+        match_type: phrase
+        patterns:
+          - heart skipped a beat
+          - heart pounding
+          - jaw clenched
+          - stomach churned
+          - blood ran cold
+          - knuckles whitened
+          - a single tear
+          - couldn't help but feel
+          - couldn't help but notice
+          - can't help but
+        case_sensitive: false
+        weight: 0.9
+      - id: fiction.atmosphere_cliches
+        label: Atmosphere setting cliches
+        definition: Repetitive atmospheric scene-setting fragments in generated fiction.
+        match_type: phrase
+        patterns:
+          - loomed
+          - looming
+          - flickered
+          - flickering
+          - shimmered
+          - shimmering
+          - vise-like grip
+          - mask of indifference
+          - carried the weight
+          - moth to a flame
+          - dawn broke
+        case_sensitive: false
+        weight: 0.7
+      - id: fiction.character_name_bias
+        label: AI default character names
+        definition: Character names from the narrow default distribution of AI fiction generators.
+        match_type: phrase
+        patterns:
+          - Elara
+          - Elena
+          - Marcus
+          - Sarah
+          - Emily
+          - Blackwood
+          - Thompson
+          - Lyra
+        case_sensitive: true
+        weight: 0.5
 
 aggregation:
   base_score_formula: sum(rule_weight * rule_match_count_capped)
@@ -484,4 +956,5 @@ report_schema:
   definitions:
     keyed_by: rule_id
   density: low_or_moderate_or_high
-  confidence: 0_to_1
+  aiism_score: non_negative_number
+  aiism_ratio: percentage_0_to_100_plus

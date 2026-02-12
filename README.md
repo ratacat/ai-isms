@@ -37,7 +37,8 @@ This keeps v1 fast and explainable. Later versions can add an ML classifier.
 - `matches`: list of matched phrases/patterns
 - `definitions`: brief explanation for each match
 - `density`: low | moderate | high
-- `confidence`: 0.0 to 1.0
+- `aiism_score`: non-negative number (length-normalized weighted AIism intensity)
+- `aiism_ratio`: detected AIisms per 100 words
 
 ## Next steps
 

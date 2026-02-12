@@ -62,7 +62,8 @@ const REPORT_SCHEMA_REQUIRED = [
   "category_breakdown",
   "definitions",
   "density",
-  "confidence"
+  "aiism_score",
+  "aiism_ratio"
 ] as const;
 
 const VALID_RULE_TYPES = ["phrase", "regex", "structural_ratio"] as const;
@@ -418,8 +419,11 @@ function validateReportSchema(value: unknown, errors: string[], pathLabel: strin
   if (hash.density !== "low_or_moderate_or_high") {
     errors.push(`${pathLabel}.density must equal 'low_or_moderate_or_high'`);
   }
-  if (hash.confidence !== "0_to_1") {
-    errors.push(`${pathLabel}.confidence must equal '0_to_1'`);
+  if (hash.aiism_score !== "non_negative_number") {
+    errors.push(`${pathLabel}.aiism_score must equal 'non_negative_number'`);
+  }
+  if (hash.aiism_ratio !== "percentage_0_to_100_plus") {
+    errors.push(`${pathLabel}.aiism_ratio must equal 'percentage_0_to_100_plus'`);
   }
 }
 

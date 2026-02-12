@@ -11,7 +11,8 @@
     "category_breakdown",
     "definitions",
     "density",
-    "confidence"
+    "aiism_score",
+    "aiism_ratio"
   ],
   "properties": {
     "total_ai_isms": {
@@ -51,9 +52,13 @@
       "type": "string",
       "const": "low_or_moderate_or_high"
     },
-    "confidence": {
+    "aiism_score": {
       "type": "string",
-      "const": "0_to_1"
+      "const": "non_negative_number"
+    },
+    "aiism_ratio": {
+      "type": "string",
+      "const": "percentage_0_to_100_plus"
     }
   }
 }

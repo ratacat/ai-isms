@@ -21,7 +21,9 @@ export interface TaxonomyRule {
     | "numbered_lines_per_100_lines"
     | "markdown_heading_lines_per_100_lines"
     | "this_is_sentences_per_100_sentences"
-    | "emphasis_markup_lines_per_100_lines";
+    | "emphasis_markup_lines_per_100_lines"
+    | "paragraph_length_inv_cv"
+    | "sentence_length_inv_cv";
   threshold?: number;
 }
 
@@ -76,10 +78,10 @@ export interface ScanResult {
   category_breakdown: CategoryBreakdown[];
   definitions: Record<string, { label: string; definition: string }>;
   density: DensityBand;
-  confidence: number;
-  score: number;
-  pass: boolean;
-  threshold_used: number;
+  aiism_score: number;
+  aiism_ratio: number;
+  pass?: boolean;
+  threshold_used?: number;
   fingerprint?: string;
 }
 
@@ -94,6 +96,7 @@ export interface ScanOptions {
   threshold: number;
   topMatches: number;
   withFingerprint: boolean;
+  emitPass: boolean;
 }
 
 export type ExitCode = 0 | 1 | 2 | 3 | 4;

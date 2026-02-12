@@ -13,10 +13,11 @@ import type {
 } from "../src/scan/types.js";
 
 const VERSION = "0.1.1";
+const ALL_MATCHES_LIMIT = Number.MAX_SAFE_INTEGER;
 
 const HELP = "aism <cmd>\nscan|batch|validate|version|help\nuse `aism help scan` for scan flags";
-const HELP_SCAN = "scan [--text t|--file p|--path p|stdin] [--threshold low|moderate|high|n] [--top-matches n(default:25)] [--fingerprint] [--quiet] [--json]\nscan --before p --after p [same flags]";
-const HELP_BATCH = "batch <file1> [file2..] [--threshold low|moderate|high|n] [--top-matches n] [--fingerprint] [--quiet] [--json]";
+const HELP_SCAN = "scan [--text t|--file p|--path p|stdin] [--threshold low|moderate|high|n (enables pass/fail)] [--top-matches n] [--fingerprint] [--quiet] [--json]\nscan --before p --after p [same flags]";
+const HELP_BATCH = "batch <file1> [file2..] [--threshold low|moderate|high|n (enables pass/fail)] [--top-matches n] [--fingerprint] [--quiet] [--json]";
 const HELP_VALIDATE = "validate [taxonomyPath] [--json]";
 
 const EXIT_BY_ERROR: Record<ErrorCode, ExitCode> = {
@@ -62,7 +63,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     text: null,
     before: null,
     after: null,
-    topMatches: 25,
+    topMatches: ALL_MATCHES_LIMIT,
     threshold: null,
     fingerprint: false,
     files: [],
@@ -311,11 +312,12 @@ function printHuman(response: RobotResponse, quiet: boolean): void {
     const truncationSuffix = scan.truncated ? ` shown=${scan.total_ai_isms}/${scan.total_detected_ai_isms}` : "";
     if (quiet) {
       const fp = scan.fingerprint ? ` fp=${scan.fingerprint}` : "";
+      const passPart = scan.pass === undefined ? "" : ` pass=${scan.pass}`;
       if (delta) {
-        process.stdout.write(`count=${scan.total_ai_isms} density=${scan.density} score=${scan.score} pass=${scan.pass} delta=${delta.delta} dir=${delta.direction}${truncationSuffix}${fp}\n`);
+        process.stdout.write(`count=${scan.total_ai_isms} density=${scan.density} score=${scan.aiism_score} ratio=${scan.aiism_ratio}${passPart} delta=${delta.delta} dir=${delta.direction}${truncationSuffix}${fp}\n`);
         return;
       }
-      process.stdout.write(`count=${scan.total_ai_isms} density=${scan.density} score=${scan.score} pass=${scan.pass}${truncationSuffix}${fp}\n`);
+      process.stdout.write(`count=${scan.total_ai_isms} density=${scan.density} score=${scan.aiism_score} ratio=${scan.aiism_ratio}${passPart}${truncationSuffix}${fp}\n`);
       return;
     }
 
@@ -330,7 +332,10 @@ function printHuman(response: RobotResponse, quiet: boolean): void {
       process.stdout.write(`before: ${delta.before_total} (${delta.before_density})\n`);
       process.stdout.write(`after: ${delta.after_total} (${delta.after_density})\n`);
     }
-    process.stdout.write(`density: ${scan.density}\nscore: ${scan.score}\ncount: ${scan.total_ai_isms}\npass: ${scan.pass}\n`);
+    process.stdout.write(`density: ${scan.density}\nscore: ${scan.aiism_score}\nratio: ${scan.aiism_ratio}\ncount: ${scan.total_ai_isms}\n`);
+    if (scan.pass !== undefined) {
+      process.stdout.write(`pass: ${scan.pass}\n`);
+    }
     if (scan.truncated) {
       process.stdout.write(`warning: showing top ${scan.total_ai_isms} of ${scan.total_detected_ai_isms} matches (use --top-matches N)\n`);
     }
@@ -404,7 +409,8 @@ function buildScanOptions(args: ParsedArgs): ScanOptions {
   return {
     threshold: parseThreshold(args.threshold),
     topMatches: Math.max(1, args.topMatches),
-    withFingerprint: args.fingerprint
+    withFingerprint: args.fingerprint,
+    emitPass: args.threshold !== null
   };
 }
 

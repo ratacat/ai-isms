@@ -17,6 +17,21 @@ function clampScore(score: number): number {
   return Math.max(0, score);
 }
 
+const STRUCTURAL_RATIO_WEIGHT_MULTIPLIER = 0.75;
+const UNIFORMITY_WEIGHT_MULTIPLIER = 0.6;
+
+function scoringMultiplierForRule(rule: TaxonomyRule): number {
+  if (rule.match_type !== "structural_ratio") {
+    return 1;
+  }
+
+  if (rule.metric === "paragraph_length_inv_cv" || rule.metric === "sentence_length_inv_cv") {
+    return UNIFORMITY_WEIGHT_MULTIPLIER;
+  }
+
+  return STRUCTURAL_RATIO_WEIGHT_MULTIPLIER;
+}
+
 function countWords(text: string): number {
   const trimmed = text.trim();
   if (!trimmed) {
@@ -46,12 +61,60 @@ function bulletLine(line: string): boolean {
   return /^(\s*[-*+]\s+|\s*\d+\.\s+)/.test(line);
 }
 
+function paragraphs(text: string): string[] {
+  return text.split(/\n\s*\n/).map(p => p.trim()).filter(p => p.length > 0);
+}
+
+function coefficientOfVariation(values: number[]): number {
+  if (values.length < 2) {
+    return 0;
+  }
+
+  const mean = values.reduce((a, b) => a + b, 0) / values.length;
+  if (mean === 0) {
+    return 0;
+  }
+
+  const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
+  return Math.sqrt(variance) / mean;
+}
+
 function countStructuralIndicators(text: string, metric: TaxonomyRule["metric"]): number {
   if (!metric) {
     return 0;
   }
 
   const ls = lines(text);
+
+  if (metric === "paragraph_length_inv_cv") {
+    const ps = paragraphs(text);
+    if (ps.length < 3) {
+      return 0;
+    }
+
+    const wordCounts = ps.map(countWords).filter(c => c > 0);
+    if (wordCounts.length < 3) {
+      return 0;
+    }
+
+    const cv = coefficientOfVariation(wordCounts);
+    return cv > 0 ? 1 / cv : 0;
+  }
+
+  if (metric === "sentence_length_inv_cv") {
+    const ss = sentences(text);
+    if (ss.length < 5) {
+      return 0;
+    }
+
+    const wordCounts = ss.map(countWords).filter(c => c > 0);
+    if (wordCounts.length < 5) {
+      return 0;
+    }
+
+    const cv = coefficientOfVariation(wordCounts);
+    return cv > 0 ? 1 / cv : 0;
+  }
 
   if (metric === "bullet_lines_per_100_lines") {
     const bullet = ls.filter(bulletLine).length;
@@ -197,12 +260,6 @@ function capRuleMatches(ruleMatches: number, capPer500Words: number, wordCount: 
   return Math.min(ruleMatches, cap);
 }
 
-function safeConfidence(score: number, maxPossible: number): number {
-  const max = Math.max(maxPossible, 1);
-  const ratio = Math.min(1, score / max);
-  return Number(Math.min(0.99, Math.max(0.05, ratio)).toFixed(2));
-}
-
 function makeFingerprint(text: string, matches: ScanRuleMatch[], score: number, density: DensityBand): string {
   const ruleIds = matches
     .map((match) => match.rule_id)
@@ -261,7 +318,7 @@ export function scanText(
       }
 
       const capped = capRuleMatches(matched.length, aggregation.rule_match_cap_per_500_words, wordCount);
-      const ruleScore = capped * rule.weight;
+      const ruleScore = capped * rule.weight * scoringMultiplierForRule(rule);
       categoryScore += ruleScore;
       definitions[rule.id] = {
         label: rule.label,
@@ -289,11 +346,7 @@ export function scanText(
 
   const totalDetected = matches.length;
   const topMatches = matches.slice(0, options.topMatches);
-
-  let score = 0;
-  for (const match of topMatches) {
-    score += match.weight;
-  }
+  const evidenceScore = Array.from(categoryScores.values()).reduce((sum, value) => sum + value, 0);
 
   const categoriesTriggered = Array.from(categoryScores.keys()).length;
   const diversityBonus =
@@ -301,17 +354,16 @@ export function scanText(
       ? aggregation.category_diversity_bonus.bonus_weight
       : 0;
 
-  const densityScore = clampScore(score + diversityBonus);
-  const density = classifyDensity(densityScore, effectiveThresholds);
-  const thresholdUsed = options.threshold;
-  const pass = densityScore >= thresholdUsed;
-
-  const maxPossible = Math.max(topMatches.length * 3, 1) * 3;
-  const confidence = safeConfidence(densityScore, maxPossible);
+  // Stabilize very short inputs: below 500 words we normalize as if text had 500 words.
+  const normalizationWords = Math.max(wordCount, 500);
+  const normalizedEvidence = evidenceScore * (1000 / normalizationWords);
+  const aiismScore = Math.min(100, clampScore(normalizedEvidence + diversityBonus));
+  const density = classifyDensity(aiismScore, effectiveThresholds);
+  const aiismRatio = (totalDetected / wordCount) * 100;
 
   const categoryBreakdown: CategoryBreakdown[] = Array.from(categoryScores.entries()).map(([category_id, weighted_score]) => ({
     category_id,
-    count: topMatches.filter((m) => m.category_id === category_id).length,
+    count: matches.filter((m) => m.category_id === category_id).length,
     weighted_score: Number(weighted_score.toFixed(2))
   }));
 
@@ -323,14 +375,17 @@ export function scanText(
     category_breakdown: categoryBreakdown,
     definitions,
     density,
-    confidence,
-    score: Number(densityScore.toFixed(2)),
-    pass,
-    threshold_used: thresholdUsed
+    aiism_score: Number(aiismScore.toFixed(2)),
+    aiism_ratio: Number(aiismRatio.toFixed(2))
   };
 
+  if (options.emitPass) {
+    result.pass = aiismScore >= options.threshold;
+    result.threshold_used = options.threshold;
+  }
+
   if (options.withFingerprint) {
-    result.fingerprint = makeFingerprint(text, topMatches, densityScore, density);
+    result.fingerprint = makeFingerprint(text, topMatches, aiismScore, density);
   }
 
   return result;
