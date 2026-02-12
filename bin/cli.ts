@@ -15,7 +15,7 @@ import type {
 const VERSION = "0.1.1";
 
 const HELP = "aism <cmd>\nscan|batch|validate|version|help\nuse `aism help scan` for scan flags";
-const HELP_SCAN = "scan [--text t|--file p|--path p|stdin] [--threshold low|moderate|high|n] [--top-matches n] [--fingerprint] [--quiet] [--json]\nscan --before p --after p [same flags]";
+const HELP_SCAN = "scan [--text t|--file p|--path p|stdin] [--threshold low|moderate|high|n] [--top-matches n(default:25)] [--fingerprint] [--quiet] [--json]\nscan --before p --after p [same flags]";
 const HELP_BATCH = "batch <file1> [file2..] [--threshold low|moderate|high|n] [--top-matches n] [--fingerprint] [--quiet] [--json]";
 const HELP_VALIDATE = "validate [taxonomyPath] [--json]";
 
@@ -62,7 +62,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     text: null,
     before: null,
     after: null,
-    topMatches: 8,
+    topMatches: 25,
     threshold: null,
     fingerprint: false,
     files: [],
