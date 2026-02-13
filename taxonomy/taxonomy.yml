@@ -248,11 +248,18 @@ categories:
         patterns:
           - "\\bwhen\\s+[^.?!]{1,260}[.?!;:]\\s+when\\s+[^.?!]{1,260}"
           - "\\bwhen\\s+[^.?!]{1,260},\\s+when\\s+[^.?!]{1,260}"
-          - "\\bwhen\\s+[^.?!]{1,220}[.?!](?:\\s+[^.?!]{1,160}[.?!]){1,2}\\s+when\\s+[^.?!]{1,220}"
           - "\\bwhen\\s+[^.?!]{1,220}[.?!]\\s+(?:the\\s+reverse|the\\s+opposite|conversely|in\\s+reverse)\\s+when\\s+[^.?!]{1,220}"
           - "\\bwhen\\s+[^.?!]{1,180}\\band\\s+when\\s+[^.?!]{1,180}"
         case_sensitive: false
-        weight: 0.9
+        weight: 0.55
+      - id: template.when_when_bridge
+        label: When/When bridge repetition
+        definition: Conditional repetition separated by bridge sentences can indicate didactic assistant-style exposition.
+        match_type: regex
+        patterns:
+          - "\\bwhen\\s+[^.?!]{1,220}[.?!](?:\\s+[^.?!]{1,160}[.?!]){1,2}\\s+when\\s+[^.?!]{1,220}"
+        case_sensitive: false
+        weight: 0.35
       - id: template.transforms_how_you
         label: Changes how you framing
         definition: Transformation promise language that presents conceptual shifts as total rewrites.
@@ -357,8 +364,8 @@ categories:
         definition: Frequent emphasis markup without semantic need.
         match_type: structural_ratio
         metric: emphasis_markup_lines_per_100_lines
-        threshold: 18
-        weight: 0.3
+        threshold: 22
+        weight: 0.2
       - id: format.numbered_line_density
         label: High numbered list density
         definition: Too many numbered lines can indicate templated output.
@@ -530,9 +537,10 @@ categories:
         definition: Instructional hypothetical opener common in assistant-mode teaching.
         match_type: regex
         patterns:
-          - "\\b(?:now\\s+)?consider\\s+(?:a|an|the|two|three|[A-Z][a-z]+)\\b"
+          - "\\b(?:now\\s+)?consider\\s+(?:a|an|the|two|three)\\b"
+          - "\\bconsider\\s+(?:this|that|these|those)\\s+(?:scenario|case|example)\\b"
         case_sensitive: false
-        weight: 0.9
+        weight: 0.6
       - id: scaffold.offer_follow_up
         label: Offer follow up help
         definition: Service-style follow-up offer phrase.

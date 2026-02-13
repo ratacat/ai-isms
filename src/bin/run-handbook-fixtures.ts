@@ -114,7 +114,7 @@ const FIXTURES: CalibrationFixture[] = [
     note: "When/when with bridge sentences should be detected.",
     text: "When perp price trades above spot, longs pay shorts. This discourages excess positioning. When perp price trades below spot, shorts pay longs.",
     expect: {
-      includeRules: ["template.when_when_didactic"]
+      includeRules: ["template.when_when_bridge"]
     }
   },
   {
