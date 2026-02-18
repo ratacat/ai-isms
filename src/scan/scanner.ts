@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { TaxonomyRule, TaxonomyCategory, ScanOptions, ScanResult, ScanRuleMatch, CategoryBreakdown, DensityBand, Taxonomy, TaxonomyAggregation, TaxonomyThresholds } from "./types.js";
+import { buildSentenceIndex, SentenceIndex } from "./sentence-index.js";
 
 function toStringSafe(value: unknown): string {
   return typeof value === "string" ? value : "";
@@ -48,14 +49,6 @@ function lines(text: string): string[] {
   return text.length === 0 ? [""] : text.split("\n");
 }
 
-function sentences(text: string): string[] {
-  const normalized = text.replace(/\s+/g, " ").trim();
-  if (!normalized) {
-    return [];
-  }
-  return normalized.split(/(?<=[.!?])\s+/);
-}
-
 function markdownHeadings(line: string): boolean {
   return /^#{1,6}\s+/.test(line);
 }
@@ -82,7 +75,7 @@ function coefficientOfVariation(values: number[]): number {
   return Math.sqrt(variance) / mean;
 }
 
-function countStructuralIndicators(text: string, metric: TaxonomyRule["metric"]): number {
+function countStructuralIndicators(text: string, metric: TaxonomyRule["metric"], sentenceIndex: SentenceIndex): number {
   if (!metric) {
     return 0;
   }
@@ -105,12 +98,11 @@ function countStructuralIndicators(text: string, metric: TaxonomyRule["metric"])
   }
 
   if (metric === "sentence_length_inv_cv") {
-    const ss = sentences(text);
-    if (ss.length < 5) {
+    if (sentenceIndex.count < 5) {
       return 0;
     }
 
-    const wordCounts = ss.map(countWords).filter(c => c > 0);
+    const wordCounts = sentenceIndex.wordCounts().filter(c => c > 0);
     if (wordCounts.length < 5) {
       return 0;
     }
@@ -140,7 +132,7 @@ function countStructuralIndicators(text: string, metric: TaxonomyRule["metric"])
   }
 
   if (metric === "this_is_sentences_per_100_sentences") {
-    const ss = sentences(text);
+    const ss = sentenceIndex.texts();
     const thisIsCount = ss.filter((sentence) => /^(?:this|it)\s+is\b/i.test(sentence)).length;
     return (thisIsCount / Math.max(ss.length, 1)) * 100;
   }
@@ -253,7 +245,7 @@ function filterLocalStackedEvidence(
   return sorted.filter((_, index) => kept.has(index));
 }
 
-function matchesInText(rule: TaxonomyRule, text: string): ScanRuleMatch[] {
+function matchesInText(rule: TaxonomyRule, text: string, sentenceIndex: SentenceIndex): ScanRuleMatch[] {
   if (rule.match_type === "phrase" || rule.match_type === "regex") {
     const patterns = Array.isArray(rule.patterns) ? rule.patterns : [];
     const results: ScanRuleMatch[] = [];
@@ -338,7 +330,7 @@ function matchesInText(rule: TaxonomyRule, text: string): ScanRuleMatch[] {
     return overlapCollapsed;
   }
 
-  const value = countStructuralIndicators(text, rule.metric);
+  const value = countStructuralIndicators(text, rule.metric, sentenceIndex);
   if (rule.threshold === undefined || value < rule.threshold) {
     return [];
   }
@@ -386,6 +378,7 @@ export function scanText(
   options: ScanOptions
 ): ScanResult {
   const text = normalizeText(toStringSafe(input));
+  const sentenceIndex = buildSentenceIndex(text);
   const wordCount = Math.max(countWords(text), 1);
   const categories = Array.isArray((taxonomy as { categories?: unknown[] }).categories)
     ? (taxonomy as { categories: TaxonomyCategory[] }).categories
@@ -421,7 +414,7 @@ export function scanText(
     let categoryScore = 0;
 
     for (const rule of category.rules) {
-      const matched = matchesInText(rule, text);
+      const matched = matchesInText(rule, text, sentenceIndex);
       if (matched.length === 0) {
         continue;
       }

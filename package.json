@@ -15,6 +15,7 @@
     "fixtures:handbook": "tsx src/bin/run-handbook-fixtures.ts"
   },
   "dependencies": {
+    "sentence-splitter": "^5.0.0",
     "yaml": "^2.8.1"
   },
   "devDependencies": {
