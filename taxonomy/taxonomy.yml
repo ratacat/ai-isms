@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-version: 1.3.0
+version: 1.4.0
 name: taxonomy
 description: Deterministic, explainable taxonomy for AIism detection.
 
@@ -310,14 +310,14 @@ categories:
           - "\\bon the one hand\\b[^.?!]{1,200}\\bon the other hand\\b"
         case_sensitive: false
         weight: 1.2
-      - id: template.no_x_no_y_just_z
-        label: No X No Y Just Z template
-        definition: Staccato negation-then-reveal template common in AI copy.
+      - id: template.staccato_negation_reveal
+        label: Staccato negation-then-reveal
+        definition: Staccato negation drumroll followed by short declarative reveal.
         match_type: regex
         patterns:
-          - "\\bno\\s+\\w+[^.?!]{0,30}\\.\\s+no\\s+\\w+[^.?!]{0,30}\\.\\s+just\\s+[^.?!]{1,60}"
+          - "\\bno\\s+\\w+[^.?!]{0,30}\\.\\s+no\\s+\\w+[^.?!]{0,30}\\.\\s+[A-Z][^.?!]{1,60}"
         case_sensitive: false
-        weight: 1.3
+        weight: 1.2
       - id: template.that_being_said
         label: That being said transition
         definition: Formulaic concession transition overused in AI prose.
@@ -340,6 +340,57 @@ categories:
           - "fundamentally,"
         case_sensitive: false
         weight: 0.7
+      - id: template.temporal_progression
+        label: Temporal progression escalation
+        definition: Compressed timeline using staccato fragments to build momentum.
+        match_type: regex
+        patterns:
+          - "\\bused to\\b[^.?!]{1,80}[.?!]\\s+then\\b[^.?!]{1,80}[.?!]\\s+(?:then|now)\\b"
+        case_sensitive: false
+        weight: 1.2
+      - id: template.naming_the_concept
+        label: Naming-the-concept move
+        definition: Author coins a term mid-text, framing discovery of something novel.
+        match_type: regex
+        patterns:
+          - "\\bi'?m calling this\\b"
+          - "\\bi call this\\b"
+          - "\\bthere'?s a (?:name|word|term) for this\\b"
+        case_sensitive: false
+        weight: 1.1
+      - id: template.heres_whats_pivot
+        label: Here's what's pivot
+        definition: Conversational aside using here's what construction to signal a reveal.
+        match_type: regex
+        patterns:
+          - "\\bhere'?s what(?:'?s| is)\\s+(?:actually|really)\\s+\\w+"
+          - "\\bhere'?s what\\s+(?:nobody|no one|most people|everyone)\\s+"
+          - "\\bhere'?s (?:the (?:real|actual|interesting) (?:thing|part|question|issue))"
+        case_sensitive: false
+        weight: 1.4
+      - id: template.contrarian_setup
+        label: Contrarian reframe setup
+        definition: Frames mainstream consensus as wrong before presenting alternative.
+        match_type: regex
+        patterns:
+          - "\\beveryone(?:'s| is) focused on\\b"
+          - "\\bwe'?ve been (?:thinking about|doing|approaching)\\b[^.?!]{1,80}\\bbackwards\\b"
+          - "\\bmost people (?:are|get)\\b[^.?!]{1,60}\\bwrong\\b"
+        case_sensitive: false
+        weight: 0.9
+      - id: template.thesis_signpost
+        label: Thesis signposting
+        definition: Inline thesis markers that signal conceptual escalation mid-text.
+        match_type: phrase
+        patterns:
+          - the bigger idea
+          - the real insight
+          - the key shift
+          - the meta-point
+          - the deeper lesson
+          - the real question is
+        case_sensitive: false
+        weight: 0.8
 
   - id: formatting_tells
     label: Formatting Tells

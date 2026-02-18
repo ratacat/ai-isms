@@ -132,6 +132,62 @@ const FIXTURES: CalibrationFixture[] = [
     expect: {
       includeRules: ["template.when_when_didactic"]
     }
+  },
+  {
+    id: "staccato-negation-reveal",
+    note: "Staccato negation drumroll followed by declarative reveal should be detected.",
+    text: "No code review cycle. No discussion. The codebase teaches what the code should look like.",
+    expect: {
+      includeRules: ["template.staccato_negation_reveal"]
+    }
+  },
+  {
+    id: "staccato-negation-human",
+    note: "Longer negation sentences should not trigger staccato reveal pattern.",
+    text: "No meaningful volume showed up at support during the session. No visible accumulation appeared around the level we were watching. The market drifted lower into close.",
+    expect: {
+      excludeRules: ["template.staccato_negation_reveal"]
+    }
+  },
+  {
+    id: "temporal-progression",
+    note: "Compressed timeline with used-to/then/then escalation should be detected.",
+    text: "Taste used to live in your head. Then in docs. Then in code review comments.",
+    expect: {
+      includeRules: ["template.temporal_progression"]
+    }
+  },
+  {
+    id: "naming-concept",
+    note: "Author coining a term mid-text should be detected.",
+    text: "I'm calling this executable taste — codified preferences that fire at write time.",
+    expect: {
+      includeRules: ["template.naming_the_concept"]
+    }
+  },
+  {
+    id: "heres-whats-pivot",
+    note: "Here's what's actually pivot should be detected.",
+    text: "Here's what's actually interesting about this approach.",
+    expect: {
+      includeRules: ["template.heres_whats_pivot"]
+    }
+  },
+  {
+    id: "contrarian-setup",
+    note: "Contrarian reframe opening should be detected.",
+    text: "Everyone's focused on giving agents better instructions. The real leverage is environmental constraints.",
+    expect: {
+      includeRules: ["template.contrarian_setup"]
+    }
+  },
+  {
+    id: "thesis-signpost",
+    note: "Thesis signpost phrase should be detected.",
+    text: "The bigger idea: taste is becoming infrastructure, not intuition.",
+    expect: {
+      includeRules: ["template.thesis_signpost"]
+    }
   }
 ];
 
@@ -333,7 +389,7 @@ function main(): void {
     process.exit(1);
   }
 
-  console.log(`\nAll ${FIXTURES.length + 2} handbook calibration fixture checks passed.`);
+  console.log(`\nAll ${FIXTURES.length + 2} handbook calibration fixtures passed.`);
 }
 
 main();
